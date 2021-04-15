@@ -16,7 +16,7 @@ private:
     
     fixed_type value;
 
-    uint32_t _pow(uint32_t x, uint32_t p)
+    uint32_t _pow(uint32_t x, uint32_t p) const
     {
       if (p == 0) return 1;
       if (p == 1) return x;
@@ -33,7 +33,8 @@ private:
         fixed_type t_inp_2 = (inp_2&(1<<31)) ? -inp_2 : inp_2;
 
         fixed_type result = (fixed_type)(((expand_type)t_inp_1 * (expand_type)t_inp_2) >> fractional_bits);
-        if(sign) result = -result;
+        if(sign)
+          result = -result;
         return result;
     }
 
@@ -44,7 +45,8 @@ private:
         fixed_type t_inp_2 = (inp_2&(1<<31)) ? -inp_2 : inp_2;
 
         fixed_type result = (fixed_type)(((expand_type)t_inp_1 * (1 << fractional_bits))/ (expand_type)t_inp_2);
-        if(sign) result = -result;
+        if(sign)
+          result = -result;
         return result;
     }
 
@@ -123,18 +125,15 @@ private:
       result = (result&0x007fffff)|(1<<23);
       int8_t shift = (127 + fractional_bits - 9 - exponent);
 
+     // result >>= shift; // хз почему не работает
       if(shift > 0)
         result >>= shift;
       else
         result <<= -shift;
 
       if(sign)
-      {
-        //result = -result;
-          int32_t temp = ((result & 0xffff0000) >> 16);
-          result = ((~--temp) << 16) + (result & 0x0000ffff);
-      }
-      std::cout << std::hex << result << std::endl;
+        result = -result; 
+
       return result; 
     }
 public:
@@ -175,11 +174,7 @@ public:
 
       bool sign = (_value & 0x80000000);
       if(sign)
-      {
-          //_value = -_value;
-          int32_t temp = ((_value & 0xffff0000) >> 16);
-          _value = ((~--temp) << 16) + (_value & 0x0000ffff);
-      }
+        _value = -_value;
 
       if(_value != 0)
       {
@@ -225,12 +220,16 @@ public:
 
       try
       {
-        result.value = (std::stoi(token_v.at(0)) << fractional_bits);
+        int integer = std::stoi(token_v.at(0));
+        bool sign = integer&(1<<31);
+        if(sign) integer = -integer;
+        fixed_type _value = (integer << fractional_bits);
         if(token_v.size() > 1)
         {
           uint32_t fr_size = result._pow(10, token_v.at(1).size());
-          result.value |= ((std::stoi(token_v.at(1)) << fractional_bits) / fr_size);
+          _value |= ((std::stoi(token_v.at(1)) << fractional_bits) / fr_size);
         }
+        result.value = sign ? -_value : _value;
       }
       catch (...)
       {
@@ -238,14 +237,16 @@ public:
       }
       return result;
     }
-    std::string toString(int precision = 2)
+    std::string toString(int precision = 2) const
     {
-      std::cout << std::hex << value << std::endl;
       std::stringstream result;
+      bool sign = value&(1<<31);
+      fixed_type _value = sign ? -value : value;
       if(!(precision &= 7)) precision = 2;
-      int16_t integer = value >> fractional_bits;
+      int16_t integer = _value >> fractional_bits;
+      if(sign) integer = -integer;
       uint64_t fr_size = _pow(10, precision + 1);
-      uint64_t fraction = (((value & fractional_mask) * fr_size) >> fractional_bits);
+      uint64_t fraction = (((_value & fractional_mask) * fr_size) >> fractional_bits);
       if((fraction % 10) >= 5)
       {
         fraction += 10;
@@ -302,7 +303,7 @@ public:
     friend bool operator>=(const fixed& lv, const fixed& rv);
     friend bool operator<=(const fixed& lv, const fixed& rv);
     // перегрузка преобразования типа
-    operator float()/* const*/
+    operator float() const
     {
       return float(toFloat());
     }

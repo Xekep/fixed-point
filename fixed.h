@@ -123,7 +123,7 @@ private:
     }
     static fixed_type fromInt(int value)
     {
-      if(value > 32767)
+      if(value > 32767 || value < -32767)
         throw std::string("Out of range");
 
        return (fixed_type)((expand_type)value * (1 << fractional_bits));

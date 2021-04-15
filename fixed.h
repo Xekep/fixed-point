@@ -15,7 +15,7 @@ private:
     typedef uint32_t fixed_type;
     typedef uint64_t expand_type;
     
-    fixed_type value;
+    fixed_type value = 0;
 
     uint32_t _pow(uint32_t x, uint32_t p) const
     {
@@ -126,7 +126,6 @@ private:
 
       result = (result&0x007fffff)|(1<<23);
       int8_t shift = (127 + fractional_bits - 9 - exponent);
-
       if(shift > 0)
         result >>= shift;
       else
@@ -134,7 +133,6 @@ private:
 
       if(sign)
         result = -result; 
-
       return result; 
     }
 public:
@@ -269,7 +267,6 @@ public:
       return result.str();
     }
 
-    //
     // бинарные
     friend fixed& operator+=(fixed& lv, const fixed& rv);
     friend fixed& operator-=(fixed& lv, const fixed& rv);

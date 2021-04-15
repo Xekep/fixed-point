@@ -350,45 +350,45 @@ const fixed operator/(const fixed& lv, const fixed& rv)
    return fixed::fromRaw(lv.fixed_div(lv.value, rv.value));
 }
 template<typename T>
-const fixed operator/(T lv, const fixed& rv)
+const fixed operator/(T lv, fixed& rv)
 {
-  return fixed(lv) / rv;
+  return fixed(lv) / (fixed)rv;
 }
 template<typename T>
-const fixed operator*(T lv, const fixed& rv)
+const fixed operator*(T lv, fixed& rv)
 {
-  return fixed(lv) * rv;
+  return fixed(lv) * (fixed)rv;
 }
 template<typename T>
-const fixed operator+(T lv, const fixed& rv)
+const fixed operator+(T lv, fixed& rv)
 {
-  return fixed(lv) + rv;
+  return fixed(lv) + (fixed)rv;
 }
 template<typename T>
-const fixed operator-(T lv, const fixed& rv)
+const fixed operator-(T lv, fixed& rv)
 {
-  return fixed(lv) - rv;
+  return fixed(lv) - (fixed)rv;
 }
 template<typename T>
-const fixed operator/(const fixed& lv, T rv)
+const fixed operator/(fixed& lv, T rv)
 {
-  return lv / fixed(rv);
+  return lv /= fixed(rv);
 }
 template<typename T>
-const fixed operator*(const fixed& lv, T rv)
+const fixed operator*(fixed& lv, T rv)
 {
-  return lv * fixed(rv);
+  return lv *= fixed(rv);
 }
 template<typename T>
-const fixed operator+(const fixed& lv, T rv)
+const fixed operator+(fixed& lv, T rv)
 {
-  return lv + fixed(rv);
+  return lv += fixed(rv);
 }
 template<typename T>
-const fixed operator-(const fixed& lv, T rv)
+const fixed operator-(fixed& lv, T rv)
 {
-  return lv - fixed(rv);
-}
+  return lv -= fixed(rv);
+};
 bool operator==(const fixed& lv, const fixed& rv)
 {
   return lv.value == rv.value;

@@ -8,8 +8,9 @@ int main()
 {
   fixed f1(1.2);
   std::cout << f1.toString(7) << std::endl;
-  f1 /= -2;
-  std::cout << std::setprecision(8) << f1 << std::endl;
+  //f1 /= -2;
+  fixed f12 = 2.4 / f1;
+  std::cout << std::setprecision(8) << f12 << std::endl;
 
   if(f1 < fixed(0))
   {

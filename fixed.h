@@ -307,6 +307,7 @@ public:
     friend bool operator<(const fixed& lv, const fixed& rv);
     friend bool operator>=(const fixed& lv, const fixed& rv);
     friend bool operator<=(const fixed& lv, const fixed& rv);
+    
     // перегрузка преобразования типа
     operator float() const
     {
@@ -318,111 +319,6 @@ public:
     }
 };
 
-const fixed operator-(const fixed& lv, const fixed& rv) {
-   return fixed::fromRaw(lv.fixed_sub(lv.value, rv.value));
-}
-const fixed operator+(const fixed& lv, const fixed& rv) {
-   return fixed::fromRaw(lv.fixed_add(lv.value, rv.value));
-}
-const fixed operator-(const fixed& lv, int rv) {
-   return lv - fixed(rv);
-}
-const fixed operator+(const fixed& lv, int rv) {
-   return lv + fixed(rv);
-}
-const fixed operator-(const fixed& lv, float rv) {
-   return lv - fixed(rv);
-}
-const fixed operator+(const fixed& lv, float rv) {
-   return lv + fixed(rv);
-}
-const fixed operator-(const fixed& lv, double& rv) {
-   return lv - fixed(rv);
-}
-const fixed operator+(const fixed& lv, double rv) {
-   return lv + fixed(rv);
-}
-
-const fixed operator*(const fixed& lv, const fixed& rv)
-{
-   return fixed::fromRaw(lv.fixed_mult(lv.value, rv.value));
-}
-const fixed operator/(const fixed& lv, const fixed& rv)
-{
-   return fixed::fromRaw(lv.fixed_div(lv.value, rv.value));
-}
-const fixed operator*(const fixed& lv, int rv)
-{
-   return lv * fixed(rv);
-}
-const fixed operator/(const fixed& lv, int rv)
-{
-   return lv / fixed(rv);
-}
-const fixed operator*(const fixed& lv, float rv)
-{
-   return lv * fixed(rv);
-}
-const fixed operator/(const fixed& lv, float rv)
-{
-   return lv / fixed(rv);
-}
-const fixed operator*(const fixed& lv, double rv)
-{
-   return lv * fixed(rv);
-}
-const fixed operator/(const fixed& lv, double rv)
-{
-   return lv / fixed(rv);
-}
-const fixed operator-(int lv, const fixed& rv)
-{
-  return fixed(lv) - rv;
-}
-const fixed operator+(int lv, const fixed& rv)
-{
-  return fixed(lv) + rv;
-}
-const fixed operator-(float lv, const fixed& rv)
-{
-  return fixed(lv) - rv;
-}
-const fixed operator+(float lv, const fixed& rv)
-{
-  return fixed(lv) + rv;
-}
-const fixed operator-(double lv, const fixed& rv)
-{
-  return fixed(lv) - rv;
-}
-const fixed operator+(double lv, const fixed& rv)
-{
-  return fixed(lv) + rv;
-}
-const fixed operator*(int lv, const fixed& rv)
-{
-  return fixed(lv) * rv;
-}
-const fixed operator/(int lv, const fixed& rv)
-{
-  return fixed(lv) / rv;
-}
-const fixed operator*(float lv, const fixed& rv)
-{
-  return fixed(lv) * rv;
-}
-const fixed operator/(float lv, const fixed& rv)
-{
-  return fixed(lv) / rv;
-}
-const fixed operator*(double lv, const fixed& rv)
-{
-  return fixed(lv) * rv;
-}
-const fixed operator/(double lv, const fixed& rv)
-{
-  return fixed(lv) / rv;
-}
 fixed& operator+=(fixed& lv, const fixed& rv) {
     lv = lv + rv;
     return lv;
@@ -438,6 +334,60 @@ fixed& operator*=(fixed& lv, const fixed& rv) {
 fixed& operator/=(fixed& lv, const fixed& rv) {
     lv = lv / rv;
     return lv;
+}
+const fixed operator-(const fixed& lv, const fixed& rv) {
+   return fixed::fromRaw(lv.fixed_sub(lv.value, rv.value));
+}
+const fixed operator+(const fixed& lv, const fixed& rv) {
+   return fixed::fromRaw(lv.fixed_add(lv.value, rv.value));
+}
+const fixed operator*(const fixed& lv, const fixed& rv)
+{
+   return fixed::fromRaw(lv.fixed_mult(lv.value, rv.value));
+}
+const fixed operator/(const fixed& lv, const fixed& rv)
+{
+   return fixed::fromRaw(lv.fixed_div(lv.value, rv.value));
+}
+template<typename T>
+const fixed operator/(T lv, const fixed& rv)
+{
+  return fixed(lv) / rv;
+}
+template<typename T>
+const fixed operator*(T lv, const fixed& rv)
+{
+  return fixed(lv) * rv;
+}
+template<typename T>
+const fixed operator+(T lv, const fixed& rv)
+{
+  return fixed(lv) + rv;
+}
+template<typename T>
+const fixed operator-(T lv, const fixed& rv)
+{
+  return fixed(lv) - rv;
+}
+template<typename T>
+const fixed operator/(const fixed& lv, T rv)
+{
+  return lv / fixed(rv);
+}
+template<typename T>
+const fixed operator*(const fixed& lv, T rv)
+{
+  return lv * fixed(rv);
+}
+template<typename T>
+const fixed operator+(const fixed& lv, T rv)
+{
+  return lv + fixed(rv);
+}
+template<typename T>
+const fixed operator-(const fixed& lv, T rv)
+{
+  return lv - fixed(rv);
 }
 bool operator==(const fixed& lv, const fixed& rv)
 {

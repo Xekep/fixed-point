@@ -15,9 +15,9 @@ private:
     typedef uint32_t fixed_type;
     typedef uint64_t expand_type;
     
-    fixed_type value = 0;
+    fixed_type value;
 
-    uint32_t _pow(uint32_t x, uint32_t p) const
+    static uint32_t _pow(uint32_t x, uint32_t p)
     {
       if (p == 0) return 1;
       if (p == 1) return x;
@@ -27,7 +27,7 @@ private:
       else return x * tmp * tmp;
     }
 
-    fixed_type fixed_mult(fixed_type inp_1, fixed_type inp_2) const
+    static fixed_type fixed_mult(fixed_type inp_1, fixed_type inp_2)
     {
         bool sign = ((inp_1&(1<<31)) - (inp_2&(1<<31))) != 0;
         fixed_type t_inp_1 = (inp_1&(1<<31)) ? -inp_1 : inp_1;
@@ -39,7 +39,7 @@ private:
         return result;
     }
 
-    fixed_type fixed_div(fixed_type inp_1, fixed_type inp_2) const
+    static fixed_type fixed_div(fixed_type inp_1, fixed_type inp_2)
     {
         bool sign = ((inp_1&(1<<31)) - (inp_2&(1<<31))) != 0;
         fixed_type t_inp_1 = (inp_1&(1<<31)) ? -inp_1 : inp_1;
@@ -51,7 +51,7 @@ private:
         return result;
     }
 
-    fixed_type fixed_add(fixed_type inp_1, fixed_type inp_2) const
+    static fixed_type fixed_add(fixed_type inp_1, fixed_type inp_2)
     {
         fixed_type inp_1_sign = inp_1 >> (fixed_type_bits - 1);
         fixed_type inp_2_sign = inp_2 >> (fixed_type_bits - 1);
@@ -76,7 +76,7 @@ private:
         }
         return 0;
     }
-    fixed_type fixed_sub(fixed_type inp_1, fixed_type inp_2) const
+    static fixed_type fixed_sub(fixed_type inp_1, fixed_type inp_2)
     {
         fixed_type inp_1_sign = inp_1 >> (fixed_type_bits - 1);
         fixed_type inp_2_sign = inp_2 >> (fixed_type_bits - 1);
@@ -102,7 +102,7 @@ private:
         return 0;
     }
     
-    fixed_type fromFloat(float value)
+    static fixed_type fromFloat(float value)
     {
       fixed_type result = *(fixed_type*)&value;
       // INFINITY
@@ -135,27 +135,25 @@ private:
         result = -result; 
       return result; 
     }
-public:
-    fixed() {}
-    fixed(float value)
-    {
-      this->value = fromFloat(value);
-    }
-    fixed(double value)
-    {
-      *this = (float)value;
-    }
-    fixed(int value)
+    static fixed_type fromInt(int value)
     {
       if(value > 32767)
         throw std::string("Out of range");
 
-      this->value = (fixed_type)((expand_type)value * (1 << fractional_bits));
+       return (fixed_type)((expand_type)value * (1 << fractional_bits));
     }
-    fixed(uint value)
+public:
+    fixed() : value(0) {}
+    fixed(float value)
     {
-      *this = (int)value;
+      this->value = fromFloat(value);
     }
+    fixed(double value) : fixed((float) value) {}
+    fixed(int value)
+    {
+      this->value = fromInt(value);
+    }
+    fixed(uint value) : fixed((int)value) {}
     static fixed fromRaw(fixed_type value)
     {
       fixed result;
@@ -266,48 +264,100 @@ public:
       }
       return result.str();
     }
-
-    // бинарные
-    friend fixed& operator+=(fixed& lv, const fixed& rv);
-    friend fixed& operator-=(fixed& lv, const fixed& rv);
-    friend fixed& operator*=(fixed& lv, const fixed& rv);
-    friend fixed& operator/=(fixed& lv, const fixed& rv);
-    friend const fixed operator-(const fixed& lv, const fixed& rv);
-    friend const fixed operator+(const fixed& lv, const fixed& rv);
-    friend const fixed operator-(const fixed& lv, int rv);
-    friend const fixed operator+(const fixed& lv, int rv);
-    friend const fixed operator-(const fixed& lv, float rv);
-    friend const fixed operator+(const fixed& lv, float rv);
-    friend const fixed operator-(const fixed& lv, double rv);
-    friend const fixed operator+(const fixed& lv, double rv);
-    friend const fixed operator-(int lv, const fixed& rv);
-    friend const fixed operator+(int lv, const fixed& rv);
-    friend const fixed operator-(float lv, const fixed& rv);
-    friend const fixed operator+(float lv, const fixed& rv);
-    friend const fixed operator-(double lv, const fixed& rv);
-    friend const fixed operator+(double lv, const fixed& rv);
-    friend const fixed operator*(int lv, const fixed& rv);
-    friend const fixed operator/(int lv, const fixed& rv);
-    friend const fixed operator*(float lv, const fixed& rv);
-    friend const fixed operator/(float lv, const fixed& rv);
-    friend const fixed operator*(double lv, const fixed& rv);
-    friend const fixed operator/(double lv, const fixed& rv);
-    friend const fixed operator*(const fixed& lv, const fixed& rv);
-    friend const fixed operator/(const fixed& lv, const fixed& rv);
-    friend const fixed operator*(const fixed& lv, int rv);
-    friend const fixed operator/(const fixed& lv, int rv);
-    friend const fixed operator*(const fixed& lv, float rv);
-    friend const fixed operator/(const fixed& lv, float rv);
-    friend const fixed operator*(const fixed& lv, double rv);
-    friend const fixed operator/(const fixed& lv, double rv);
-    // операторы сравнения
-    friend bool operator==(const fixed& lv, const fixed& rv);
-    friend bool operator!=(const fixed& lv, const fixed& rv);
-    friend bool operator>(const fixed& lv, const fixed& rv);
-    friend bool operator<(const fixed& lv, const fixed& rv);
-    friend bool operator>=(const fixed& lv, const fixed& rv);
-    friend bool operator<=(const fixed& lv, const fixed& rv);
-    
+    // бинарные арифметические операторы сложения
+    friend fixed operator+(const fixed&lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_add(lv.value, rv.value));
+    }
+    template<typename U>
+    friend fixed operator+(const fixed& lv, U rv){
+      return fixed::fromRaw(fixed::fixed_add(lv.value, fixed(rv).value));
+    }
+    template<typename U>
+    friend fixed operator+(U lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_add(fixed(lv).value, rv.value));
+    }
+    // бинарные арифметические операторы вычитания
+    friend fixed operator-(const fixed&lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_sub(lv.value, rv.value));
+    }
+    template<typename U>
+    friend fixed operator-(const fixed& lv, U rv){
+      return fixed::fromRaw(fixed::fixed_sub(lv.value, fixed(rv).value));
+    }
+    template<typename U>
+    friend fixed operator-(U lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_sub(fixed(lv).value, rv.value));
+    }
+    // бинарные арифметические операторы умножения
+    friend fixed operator*(const fixed&lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_mult(lv.value, rv.value));
+    }
+    template<typename U>
+    friend fixed operator*(const fixed& lv, U rv){
+      return fixed::fromRaw(fixed::fixed_mult(lv.value, fixed(rv).value));
+    }
+    template<typename U>
+    friend fixed operator*(U lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_mult(fixed(lv).value, rv.value));
+    }
+    // бинарные арифметические операторы деления
+    friend fixed operator/(const fixed&lv, const fixed& rv){
+      return fixed::fromRaw(fixed::fixed_div(lv.value, rv.value));
+    }
+    template<typename U>
+    friend fixed operator/(const fixed& lv, U rv){
+      return fixed::fromRaw(fixed::fixed_div(lv.value, fixed(rv).value));
+    }
+    template<typename U>
+    friend fixed operator/(U lv, const fixed& rv) {
+      return fixed::fromRaw(fixed::fixed_div(fixed(lv).value, rv.value));
+    }
+    // бинарные составные операторы присваивания
+    friend fixed& operator+=(fixed& lv, const fixed& rv)
+    {
+      lv.value = fixed::fixed_add(lv.value, rv.value);
+      return lv;
+    }
+    friend fixed& operator-=(fixed& lv, const fixed& rv)
+    {
+      lv.value = fixed::fixed_sub(lv.value, rv.value);
+      return lv;
+    }
+    friend fixed& operator*=(fixed& lv, const fixed& rv)
+    {
+      lv.value = fixed::fixed_mult(lv.value, rv.value);
+      return lv;
+    }
+    friend fixed& operator/=(fixed& lv, const fixed& rv)
+    {
+      lv.value = fixed::fixed_div(lv.value, rv.value);
+      return lv;
+    }
+    // бинарные операторы сравнения
+    friend bool operator==(const fixed& lv, const fixed& rv)
+    {
+      return lv.value == rv.value;
+    }
+    friend bool operator!=(const fixed& lv, const fixed& rv)
+    {
+      return lv.value != lv.value;
+    }
+    friend bool operator>(const fixed& lv, const fixed& rv)
+    {
+      return (int32_t)lv.value > (int32_t)rv.value;
+    }
+    friend bool operator<(const fixed& lv, const fixed& rv)
+    {
+      return (int32_t)lv.value < (int32_t)rv.value;
+    }
+    friend bool operator>=(const fixed& lv, const fixed& rv)
+    {
+      return (int32_t)lv.value >= (int32_t)rv.value;
+    }
+    friend bool operator<=(const fixed& lv, const fixed& rv)
+    {
+      return (int32_t)lv.value <= (int32_t)rv.value;
+    }
     // перегрузка преобразования типа
     operator float() const
     {
@@ -318,98 +368,3 @@ public:
       return float(toInt());
     }
 };
-
-fixed& operator+=(fixed& lv, const fixed& rv) {
-    lv = lv + rv;
-    return lv;
-}
-fixed& operator-=(fixed& lv, const fixed& rv) {
-    lv = lv - rv;
-    return lv;
-}
-fixed& operator*=(fixed& lv, const fixed& rv) {
-    lv = lv * rv;
-    return lv;
-}
-fixed& operator/=(fixed& lv, const fixed& rv) {
-    lv = lv / rv;
-    return lv;
-}
-const fixed operator-(const fixed& lv, const fixed& rv) {
-   return fixed::fromRaw(lv.fixed_sub(lv.value, rv.value));
-}
-const fixed operator+(const fixed& lv, const fixed& rv) {
-   return fixed::fromRaw(lv.fixed_add(lv.value, rv.value));
-}
-const fixed operator*(const fixed& lv, const fixed& rv)
-{
-   return fixed::fromRaw(lv.fixed_mult(lv.value, rv.value));
-}
-const fixed operator/(const fixed& lv, const fixed& rv)
-{
-   return fixed::fromRaw(lv.fixed_div(lv.value, rv.value));
-}
-template<typename T>
-const fixed operator/(T lv, fixed& rv)
-{
-  return fixed(lv) / (fixed)rv;
-}
-template<typename T>
-const fixed operator*(T lv, fixed& rv)
-{
-  return fixed(lv) * (fixed)rv;
-}
-template<typename T>
-const fixed operator+(T lv, fixed& rv)
-{
-  return fixed(lv) + (fixed)rv;
-}
-template<typename T>
-const fixed operator-(T lv, fixed& rv)
-{
-  return fixed(lv) - (fixed)rv;
-}
-template<typename T>
-const fixed operator/(fixed& lv, T rv)
-{
-  return lv /= fixed(rv);
-}
-template<typename T>
-const fixed operator*(fixed& lv, T rv)
-{
-  return lv *= fixed(rv);
-}
-template<typename T>
-const fixed operator+(fixed& lv, T rv)
-{
-  return lv += fixed(rv);
-}
-template<typename T>
-const fixed operator-(fixed& lv, T rv)
-{
-  return lv -= fixed(rv);
-};
-bool operator==(const fixed& lv, const fixed& rv)
-{
-  return lv.value == rv.value;
-}
-bool operator!=(const fixed& lv, const fixed& rv)
-{
-  return lv.value != lv.value;
-}
-bool operator>(const fixed& lv, const fixed& rv)
-{
-  return (int32_t)lv.value > (int32_t)rv.value;
-}
-bool operator<(const fixed& lv, const fixed& rv)
-{
-  return (int32_t)lv.value < (int32_t)rv.value;
-}
-bool operator>=(const fixed& lv, const fixed& rv)
-{
-  return (int32_t)lv.value >= (int32_t)rv.value;
-}
-bool operator<=(const fixed& lv, const fixed& rv)
-{
-  return (int32_t)lv.value <= (int32_t)rv.value;
-}

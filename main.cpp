@@ -7,7 +7,7 @@
 
 int main()
 {
-  
+
  // fixed f2(1);
  // f = -12.0;
 
@@ -19,17 +19,20 @@ int main()
  // f = *(float*)&test;
 
   //std::cout << fixed::fromString("-12.6");
+  
+
   fixed f1(-1.5);
   std::cout << f1.toString() << std::endl;
   f1 /= -2;
   std::cout << std::setprecision(8) << f1 << std::endl;
-  std::cout << std::setprecision(8) << fixed::fromString("-123.5") << std::endl;
+  
 
-/*
+
   if(f1 < fixed(0))
   {
     std::cout << std::setprecision(8) << f1 << " меньше"  << std::endl;
   }
+  
   fixed f2(731.4f);
   std::cout << std::setprecision(8) << f2 << std::endl;
 
@@ -41,14 +44,15 @@ int main()
 
   try
   {
-    fixed f4(32769);
-    std::cout << std::setprecision(8) << f4 << std::endl;  
+    //fixed f4(32769);
+    //std::cout << std::setprecision(8) << f4 << std::endl;  
+
+    std::cout << std::setprecision(8) << fixed::fromString("-23l.5") << std::endl;
   }
   catch(std::string ex)
   {
     std::cout << ex << std::endl; 
   } 
-  */
   //std::cout << std::hex << *(uint32_t*)&test << std::endl;
   return 0;
 }

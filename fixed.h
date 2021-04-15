@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
 
 class fixed final
 {
@@ -100,6 +101,7 @@ private:
         }
         return 0;
     }
+    
     fixed_type fromFloat(float value)
     {
       fixed_type result = *(fixed_type*)&value;
@@ -125,7 +127,6 @@ private:
       result = (result&0x007fffff)|(1<<23);
       int8_t shift = (127 + fractional_bits - 9 - exponent);
 
-     // result >>= shift; // хз почему не работает
       if(shift > 0)
         result >>= shift;
       else
@@ -152,6 +153,10 @@ public:
         throw std::string("Out of range");
 
       this->value = (fixed_type)((expand_type)value * (1 << fractional_bits));
+    }
+    fixed(uint value)
+    {
+      *this = (int)value;
     }
     static fixed fromRaw(fixed_type value)
     {
@@ -218,16 +223,19 @@ public:
         throw std::string("Invalid argument");
       }
 
+      std::size_t pos;
       try
       {
-        int integer = std::stoi(token_v.at(0));
+        int integer = std::stoi(token_v.at(0), &pos);
+        if(pos != token_v.at(0).size()) throw 1;
         bool sign = integer&(1<<31);
         if(sign) integer = -integer;
         fixed_type _value = (integer << fractional_bits);
         if(token_v.size() > 1)
         {
           uint32_t fr_size = result._pow(10, token_v.at(1).size());
-          _value |= ((std::stoi(token_v.at(1)) << fractional_bits) / fr_size);
+          _value |= ((std::stoi(token_v.at(1), &pos) << fractional_bits) / fr_size);
+          if(pos != token_v.at(1).size()) throw 1;
         }
         result.value = sign ? -_value : _value;
       }

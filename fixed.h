@@ -12,8 +12,8 @@ private:
     static const int fixed_type_bits = 32;
     static const int fractional_mask = 0xffff;
     
-    typedef uint32_t fixed_type;
-    typedef uint64_t expand_type;
+    typedef int32_t fixed_type;
+    typedef int64_t expand_type;
     
     fixed_type value;
 
@@ -29,26 +29,12 @@ private:
 
     static fixed_type fixed_mult(fixed_type inp_1, fixed_type inp_2)
     {
-        bool sign = ((inp_1&(1<<31)) - (inp_2&(1<<31))) != 0;
-        fixed_type t_inp_1 = (inp_1&(1<<31)) ? -inp_1 : inp_1;
-        fixed_type t_inp_2 = (inp_2&(1<<31)) ? -inp_2 : inp_2;
-
-        fixed_type result = (fixed_type)(((expand_type)t_inp_1 * (expand_type)t_inp_2) >> fractional_bits);
-        if(sign)
-          result = -result;
-        return result;
+        return (fixed_type)(((expand_type)inp_1 * (expand_type)inp_2) >> fractional_bits);
     }
 
     static fixed_type fixed_div(fixed_type inp_1, fixed_type inp_2)
     {
-        bool sign = ((inp_1&(1<<31)) - (inp_2&(1<<31))) != 0;
-        fixed_type t_inp_1 = (inp_1&(1<<31)) ? -inp_1 : inp_1;
-        fixed_type t_inp_2 = (inp_2&(1<<31)) ? -inp_2 : inp_2;
-
-        fixed_type result = (fixed_type)(((expand_type)t_inp_1 * (1 << fractional_bits))/ (expand_type)t_inp_2);
-        if(sign)
-          result = -result;
-        return result;
+        return (fixed_type)(((expand_type)inp_1 * (1 << fractional_bits))/ (expand_type)inp_2);
     }
 
     static fixed_type fixed_add(fixed_type inp_1, fixed_type inp_2)

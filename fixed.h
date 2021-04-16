@@ -8,12 +8,15 @@
 class fixed final
 {
 private:
+    typedef int32_t fixed_type;
+    typedef int64_t expand_type;
+
     static const int fractional_bits = 16;
     static const int fixed_type_bits = 32;
     static const int fractional_mask = 0xffff;
-    
-    typedef int32_t fixed_type;
-    typedef int64_t expand_type;
+    static const fixed_type one = 1 << fractional_bits;
+    static const int max_exp = 141;
+    static const int min_exp = 113;
     
     fixed_type value;
 
@@ -61,7 +64,7 @@ private:
         {
             return (1 << (fixed_type_bits - 1));
         }
-        return 0;
+        return inp_2;
     }
     static fixed_type fixed_sub(fixed_type inp_1, fixed_type inp_2)
     {
@@ -86,7 +89,7 @@ private:
         {
             return (1 << (fixed_type_bits - 1));
         }
-        return 0;
+        return -inp_2;
     }
     static fixed_type fromFloat(float value)
     {
@@ -107,9 +110,9 @@ private:
       bool sign = (result & 0x80000000);
       uint_fast8_t exponent = (result >> 23) & 0xff;
 
-      if(exponent > 141)
+      if(exponent > max_exp)
         throw std::string("Out of range");
-      if(exponent < 113)
+      if(exponent < min_exp)
         return 0;
 
       result = (result&0x007fffff)|(1<<23);
@@ -241,14 +244,9 @@ public:
                   exponent --;
               }
           }
-          if(exponent < 113)
-            _value = 0;
-          else
-          {
-            _value &= 0x007fffff;
-            _value |= (uint32_t)exponent << 23;
-            if(sign) _value |= 0x80000000;
-          }
+          _value &= 0x007fffff;
+          _value |= (uint32_t)exponent << 23;
+          if(sign) _value |= 0x80000000;
       }
       return *(float*)&_value;      
     }
@@ -278,6 +276,17 @@ public:
         result  << decimal_point << std::setw(precision) << std::setfill('0') << fraction;
       }
       return result.str();
+    }
+    // унарные префиксные операторы инкремента и декремента
+    fixed& operator--()
+    {
+      value = fixed_sub(value, one);
+      return *this;
+    }
+    fixed& operator++()
+    {
+      value = fixed_add(value, one);
+      return *this;
     }
     // бинарные арифметические операторы сложения
     friend fixed operator+(const fixed&lv, const fixed& rv){

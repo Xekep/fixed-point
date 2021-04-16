@@ -368,10 +368,10 @@ public:
     // перегрузка преобразования типа
     operator float() const
     {
-      return float(toFloat());
+      return toFloat();
     }
     explicit operator int() const
     {
-      return float(toInt());
+      return toInt();
     }
 };

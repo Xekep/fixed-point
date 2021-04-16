@@ -87,7 +87,6 @@ private:
         }
         return 0;
     }
-    
     static fixed_type fromFloat(float value)
     {
       fixed_type result = *(fixed_type*)&value;
@@ -128,18 +127,73 @@ private:
 
        return (fixed_type)((expand_type)value * (1 << fractional_bits));
     }
+    static fixed_type _fromString(const std::string& stringValue)
+    {
+      std::vector<std::string> token_v;
+      fixed_type result;
+      char decimal_point = std::use_facet< std::numpunct<char> >(std::cout.getloc()).decimal_point();
+      size_t start = stringValue.find_first_not_of(decimal_point), end=start;
+
+      while (start != std::string::npos){
+        end = stringValue.find(decimal_point, start);
+        token_v.push_back(stringValue.substr(start, end-start));
+        start = stringValue.find_first_not_of(decimal_point, end);
+      }
+
+      if(token_v.size() > 2 || token_v.empty())
+      {
+        throw std::string("Invalid argument");
+      }
+
+      std::size_t pos;
+      try
+      {
+        int integer = std::stoi(token_v.at(0), &pos);
+        if(pos != token_v.at(0).size()) throw 1;
+        bool sign = integer&(1<<31);
+        if(sign) integer = -integer;
+        fixed_type _value = (integer << fractional_bits);
+        if(token_v.size() > 1)
+        {
+          uint32_t fr_size = _pow(10, token_v.at(1).size());
+          _value |= ((std::stoi(token_v.at(1), &pos) << fractional_bits) / fr_size);
+          if(pos != token_v.at(1).size()) throw 1;
+        }
+        result = sign ? -_value : _value;
+      }
+      catch (...)
+      {
+        throw std::string("Invalid argument");
+      }
+      return result;
+    }
+    static fixed_type to_fixed(float value)
+    {
+      return fromFloat(value);
+    }
+    static fixed_type to_fixed(double value)
+    {
+      return fromFloat((float)value);
+    }
+    static fixed_type to_fixed(int value)
+    {
+      return fromInt(value);
+    }
+    static fixed_type to_fixed(uint value)
+    {
+      return fromInt((int)value);
+    }
+    static fixed_type to_fixed(const std::string& stringValue)
+    {
+      return _fromString(stringValue);
+    }
 public:
     fixed() : value(0) {}
-    fixed(float value)
-    {
-      this->value = fromFloat(value);
-    }
-    fixed(double value) : fixed((float) value) {}
-    fixed(int value)
-    {
-      this->value = fromInt(value);
-    }
-    fixed(uint value) : fixed((int)value) {}
+    fixed(float value) : value(to_fixed(value)) {}
+    fixed(double value) : value(to_fixed(value)) {}
+    fixed(int value) : value(to_fixed(value)) {}
+    fixed(uint value) : value(to_fixed(value)) {}
+    fixed(const std::string& stringValue) : value(to_fixed(stringValue)) {}
     static fixed fromRaw(fixed_type value)
     {
       fixed result;
@@ -189,43 +243,7 @@ public:
     }
     static fixed fromString(const std::string& stringValue)
     {
-      std::vector<std::string> token_v;
-      fixed result;
-      char decimal_point = std::use_facet< std::numpunct<char> >(std::cout.getloc()).decimal_point();
-      size_t start = stringValue.find_first_not_of(decimal_point), end=start;
-
-      while (start != std::string::npos){
-        end = stringValue.find(decimal_point, start);
-        token_v.push_back(stringValue.substr(start, end-start));
-        start = stringValue.find_first_not_of(decimal_point, end);
-      }
-
-      if(token_v.size() > 2 || token_v.empty())
-      {
-        throw std::string("Invalid argument");
-      }
-
-      std::size_t pos;
-      try
-      {
-        int integer = std::stoi(token_v.at(0), &pos);
-        if(pos != token_v.at(0).size()) throw 1;
-        bool sign = integer&(1<<31);
-        if(sign) integer = -integer;
-        fixed_type _value = (integer << fractional_bits);
-        if(token_v.size() > 1)
-        {
-          uint32_t fr_size = result._pow(10, token_v.at(1).size());
-          _value |= ((std::stoi(token_v.at(1), &pos) << fractional_bits) / fr_size);
-          if(pos != token_v.at(1).size()) throw 1;
-        }
-        result.value = sign ? -_value : _value;
-      }
-      catch (...)
-      {
-        throw std::string("Invalid argument");
-      }
-      return result;
+      return fixed::fromRaw(_fromString(stringValue));
     }
     std::string toString(int precision = 2) const
     {
@@ -260,7 +278,7 @@ public:
     }
     template<typename U>
     friend fixed operator+(U lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_add(fixed(lv).value, rv.value));
+      return fixed::fromRaw(fixed::fixed_add(to_fixed(lv), rv.value));
     }
     // бинарные арифметические операторы вычитания
     friend fixed operator-(const fixed&lv, const fixed& rv){
@@ -268,11 +286,11 @@ public:
     }
     template<typename U>
     friend fixed operator-(const fixed& lv, U rv){
-      return fixed::fromRaw(fixed::fixed_sub(lv.value, fixed(rv).value));
+      return fixed::fromRaw(fixed::fixed_sub(lv.value, to_fixed(rv)));
     }
     template<typename U>
     friend fixed operator-(U lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_sub(fixed(lv).value, rv.value));
+      return fixed::fromRaw(fixed::fixed_sub(to_fixed(lv), rv.value));
     }
     // бинарные арифметические операторы умножения
     friend fixed operator*(const fixed&lv, const fixed& rv){
@@ -280,11 +298,11 @@ public:
     }
     template<typename U>
     friend fixed operator*(const fixed& lv, U rv){
-      return fixed::fromRaw(fixed::fixed_mult(lv.value, fixed(rv).value));
+      return fixed::fromRaw(fixed::fixed_mult(lv.value, to_fixed(rv)));
     }
     template<typename U>
     friend fixed operator*(U lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_mult(fixed(lv).value, rv.value));
+      return fixed::fromRaw(fixed::fixed_mult(to_fixed(lv), rv.value));
     }
     // бинарные арифметические операторы деления
     friend fixed operator/(const fixed&lv, const fixed& rv){
@@ -292,11 +310,11 @@ public:
     }
     template<typename U>
     friend fixed operator/(const fixed& lv, U rv){
-      return fixed::fromRaw(fixed::fixed_div(lv.value, fixed(rv).value));
+      return fixed::fromRaw(fixed::fixed_div(lv.value, to_fixed(rv)));
     }
     template<typename U>
     friend fixed operator/(U lv, const fixed& rv) {
-      return fixed::fromRaw(fixed::fixed_div(fixed(lv).value, rv.value));
+      return fixed::fromRaw(fixed::fixed_div(to_fixed(lv), rv.value));
     }
     // бинарные составные операторы присваивания
     friend fixed& operator+=(fixed& lv, const fixed& rv)
@@ -330,19 +348,19 @@ public:
     }
     friend bool operator>(const fixed& lv, const fixed& rv)
     {
-      return (int32_t)lv.value > (int32_t)rv.value;
+      return lv.value > rv.value;
     }
     friend bool operator<(const fixed& lv, const fixed& rv)
     {
-      return (int32_t)lv.value < (int32_t)rv.value;
+      return lv.value < rv.value;
     }
     friend bool operator>=(const fixed& lv, const fixed& rv)
     {
-      return (int32_t)lv.value >= (int32_t)rv.value;
+      return lv.value >= rv.value;
     }
     friend bool operator<=(const fixed& lv, const fixed& rv)
     {
-      return (int32_t)lv.value <= (int32_t)rv.value;
+      return lv.value <= rv.value;
     }
     // перегрузка преобразования типа
     operator float() const

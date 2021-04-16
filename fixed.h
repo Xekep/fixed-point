@@ -79,7 +79,7 @@ private:
         }
         else if (sub_sign == -1)
         {
-            return ((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
+            return ((1 << (fixed_type_bits - 2)) - 1 - (1 << (fixed_type_bits - 2)));
         }
         else if (sub_sign == 1)
         {

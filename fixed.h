@@ -288,6 +288,19 @@ public:
       value = fixed_add(value, one);
       return *this;
     }
+    // унарные постфиксные операторы инкремента и декремента
+    fixed operator--(int)
+    {
+      fixed temp(*this);
+      value = fixed_sub(value, one);
+      return temp;
+    }
+    fixed operator++(int)
+    {
+      fixed temp(*this);
+      value = fixed_add(value, one);
+      return temp;
+    }
     // бинарные арифметические операторы сложения
     friend fixed operator+(const fixed&lv, const fixed& rv){
       return fixed::fromRaw(fixed::fixed_add(lv.value, rv.value));

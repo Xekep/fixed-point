@@ -202,9 +202,12 @@ public:
     }
     int16_t toInt() const
     {
-      return (value >> fractional_bits);
+      bool sign = (value&(1<<31));
+      fixed_type result = sign ? -value : value;
+      result >>= fractional_bits;
+      return sign ? -result : result;
     }
-    int32_t toRaw() const
+    fixed_type toRaw() const
     {
       return value;
     }

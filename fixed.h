@@ -34,6 +34,7 @@ private:
 
     static fixed_type fixed_div(fixed_type inp_1, fixed_type inp_2)
     {
+        if(inp_2 == 0) throw std::string("Divide by zero");
         return (fixed_type)(((expand_type)inp_1 * (1 << fractional_bits))/ (expand_type)inp_2);
     }
 

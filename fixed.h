@@ -106,8 +106,10 @@ private:
       bool sign = (result & 0x80000000);
       uint_fast8_t exponent = (result >> 23) & 0xff;
 
-      if(exponent > 141 || exponent < 113)
+      if(exponent > 141)
         throw std::string("Out of range");
+      if(exponent < 113)
+        return 0;
 
       result = (result&0x007fffff)|(1<<23);
       int8_t shift = (127 + fractional_bits - 9 - exponent);
@@ -238,11 +240,14 @@ public:
                   exponent --;
               }
           }
-          _value &= 0x007fffff;
-          _value |= (uint32_t)exponent << 23;
-          if(sign) _value |= 0x80000000;
           if(exponent < 113)
             _value = 0;
+          else
+          {
+            _value &= 0x007fffff;
+            _value |= (uint32_t)exponent << 23;
+            if(sign) _value |= 0x80000000;
+          }
       }
       return *(float*)&_value;      
     }

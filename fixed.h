@@ -185,7 +185,7 @@ private:
     {
       return fromInt(value);
     }
-    static fixed_type to_fixed(uint value)
+    static fixed_type to_fixed(unsigned int value)
     {
       return fromInt((int)value);
     }
@@ -198,7 +198,7 @@ public:
     fixed(float value) : value(to_fixed(value)) {}
     fixed(double value) : value(to_fixed(value)) {}
     fixed(int value) : value(to_fixed(value)) {}
-    fixed(uint value) : value(to_fixed(value)) {}
+    fixed(unsigned int value) : value(to_fixed(value)) {}
     fixed(const std::string& stringValue) : value(to_fixed(stringValue)) {}
     static fixed fromRaw(fixed_type value)
     {
@@ -377,7 +377,7 @@ public:
     }
     friend bool operator!=(const fixed& lv, const fixed& rv)
     {
-      return lv.value != lv.value;
+      return lv.value != rv.value;
     }
     friend bool operator>(const fixed& lv, const fixed& rv)
     {

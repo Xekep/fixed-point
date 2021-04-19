@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <iostream>
 #include "fixed.h"
-#include "fixed2.h"
 
 int main()
 { 
@@ -12,6 +11,8 @@ int main()
   fixed f12 = (1 + f1 * 2);
   f12 = (f12 * -4.1) + "20.5";
   f12++;
+  f12 = -32767;
+  f12 -= fixed(7);
   std::cout << std::setprecision(8) << f12 << std::endl;
 
   if(f1 > fixed(0))
@@ -31,7 +32,7 @@ int main()
   try
   {
     fixed f4(1.1f); // ??
-    std::cout << std::setprecision(8) << f4 << std::endl;  
+    std::cout << std::setprecision(8) << f4 << std::endl;
 
     std::cout << std::setprecision(8) << fixed::fromString("-23l.5") << std::endl;
   }

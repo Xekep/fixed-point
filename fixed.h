@@ -43,10 +43,10 @@ private:
 
     static fixed_type fixed_add(fixed_type inp_1, fixed_type inp_2)
     {
-        fixed_type inp_1_sign = inp_1 >> (fixed_type_bits - 1);
-        fixed_type inp_2_sign = inp_2 >> (fixed_type_bits - 1);
+        bool inp_1_sign = inp_1&(1<<31);
+        bool inp_2_sign = inp_2&(1<<31);
         fixed_type add = inp_1 + inp_2;
-        fixed_type add_sign = add >> (fixed_type_bits - 1);
+        bool add_sign = add&(1<<31);
 
         if (inp_1_sign != inp_2_sign)
         {
@@ -56,11 +56,11 @@ private:
         {
             return add;
         }
-        else if (add_sign == -1)
+        else if (add_sign)
         {
             return ((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
         }
-        else if (add_sign == 1)
+        else if (!add_sign)
         {
             return (1 << (fixed_type_bits - 1));
         }
@@ -68,26 +68,26 @@ private:
     }
     static fixed_type fixed_sub(fixed_type inp_1, fixed_type inp_2)
     {
-        fixed_type inp_1_sign = inp_1 >> (fixed_type_bits - 1);
-        fixed_type inp_2_sign = inp_2 >> (fixed_type_bits - 1);
+        bool inp_1_sign = inp_1&(1<<31);
+        bool inp_2_sign = inp_2&(1<<31);
         fixed_type sub = inp_1 - inp_2;
-        fixed_type sub_sign = sub << (fixed_type_bits - 1);
+        bool sub_sign = sub&(1<<31);
 
-        if (inp_1_sign != inp_2_sign)
+        if (inp_1_sign == inp_2_sign)
         {
             return sub;
         }
-        else if (sub_sign == inp_1_sign)
+        if (sub_sign == inp_1_sign)
         {
             return sub;
         }
-        else if (sub_sign == -1)
+        else if (!sub_sign)
         {
-            return ((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
+            return -((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
         }
-        else if (sub_sign == 1)
+        else if (sub_sign)
         {
-            return (1 << (fixed_type_bits - 1));
+            return -(1 << (fixed_type_bits - 1));
         }
         return -inp_2;
     }
@@ -219,7 +219,7 @@ public:
     }
     float toFloat() const
     {
-      fixed_type _value = value;
+      uint32_t _value = value;
       uint_fast8_t exponent = 134;
 
       bool sign = (_value & 0x80000000);

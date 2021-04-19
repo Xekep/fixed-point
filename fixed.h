@@ -420,27 +420,27 @@ public:
     {
       return lv.value <= to_fixed(rv);
     }
-    friend bool operator==(const int lv, fixed& rv)
+    friend bool operator==(int lv, fixed& rv)
     {
       return to_fixed(lv) == rv.value;
     }
-    friend bool operator!=(const int lv, fixed& rv)
+    friend bool operator!=(int lv, fixed& rv)
     {
       return to_fixed(lv) != rv.value;
     }
-    friend bool operator>(const int lv, fixed& rv)
+    friend bool operator>(int lv, fixed& rv)
     {
       return to_fixed(lv) > rv.value;
     }
-    friend bool operator<(const int lv, fixed& rv)
+    friend bool operator<(int lv, fixed& rv)
     {
       return to_fixed(lv) < rv.value;
     }
-    friend bool operator>=(const int lv, fixed& rv)
+    friend bool operator>=(int lv, fixed& rv)
     {
       return to_fixed(lv) >= rv.value;
     }
-    friend bool operator<=(const int lv, fixed& rv)
+    friend bool operator<=(int lv, fixed& rv)
     {
       return to_fixed(lv) <= rv.value;
     }

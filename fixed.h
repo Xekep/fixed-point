@@ -449,6 +449,10 @@ public:
     {
       return toFloat();
     }
+    operator std::string() const
+    {
+      return toString();
+    }
     explicit operator int() const
     {
       return toInt();

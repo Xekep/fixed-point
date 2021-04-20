@@ -15,9 +15,9 @@ int main()
   f12 -= fixed(7);
   std::cout << std::setprecision(8) << f12 << std::endl;
 
-  if(f1 > 0)
+  if(f1 > 12)
   {
-    std::cout << std::setprecision(8) << f1 << " больше 0"  << std::endl;
+    std::cout << std::setprecision(8) << f1 << " больше" << f12  << std::endl;
   }
   
   fixed f2(731.4f);

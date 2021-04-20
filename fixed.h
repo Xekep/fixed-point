@@ -444,6 +444,62 @@ public:
     {
       return to_fixed(lv) <= rv.value;
     }
+    // перегрузка уенарных операторов сравнения
+    bool operator>(fixed rhs)
+    {
+		  return value > rhs.value;
+	  }
+    bool operator<(fixed rhs)
+    {
+		  return value < rhs.value;
+	  }
+    bool operator==(fixed rhs)
+    {
+		  return value == rhs.value;
+	  }
+    bool operator!=(fixed rhs)
+    {
+		  return value != rhs.value;
+	  }
+    bool operator<=(fixed rhs)
+    {
+		  return value <= rhs.value;
+	  }
+    bool operator>=(fixed rhs)
+    {
+		  return value >= rhs.value;
+	  }
+    //
+    template<typename U>
+    bool operator>(U rhs)
+    {
+		  return value > to_fixed(rhs);
+	  }
+    template<typename U>
+    bool operator<(U rhs)
+    {
+		  return value < to_fixed(rhs);
+	  }
+    template<typename U>
+    bool operator==(U rhs)
+    {
+		  return value == to_fixed(rhs);
+	  }
+    template<typename U>
+    bool operator!=(U rhs)
+    {
+		  return value != to_fixed(rhs);
+	  }
+    template<typename U>
+    bool operator<=(U rhs)
+    {
+		  return value <= to_fixed(rhs);
+	  }
+    template<typename U>
+    bool operator>=(U rhs)
+    {
+		  return value >= to_fixed(rhs);
+	  }
     // перегрузка преобразования типа
     operator float() const
     {

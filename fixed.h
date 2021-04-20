@@ -128,7 +128,7 @@ private:
     }
     static fixed_type fromInt(int value)
     {
-      if(value > 32767 || value < -32767)
+      if(value > MaxValue || value < MinValue)
         throw std::string("Out of range");
 
        return (fixed_type)((expand_type)value * (1 << fractional_bits));
@@ -194,6 +194,8 @@ private:
       return _fromString(stringValue);
     }
 public:
+    static const int MaxValue = 32767;
+    static const int MinValue = -32767;
     fixed() : value(0) {}
     fixed(float value) : value(to_fixed(value)) {}
     fixed(double value) : value(to_fixed(value)) {}

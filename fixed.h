@@ -135,25 +135,26 @@ private:
     }
     static fixed_type _fromString(const std::string& stringValue)
     {
-      std::vector<std::string> token_v;
-      fixed_type result;
-      char decimal_point = std::use_facet< std::numpunct<char> >(std::locale()).decimal_point();
-      size_t start = stringValue.find_first_not_of(decimal_point), end=start;
-
-      while (start != std::string::npos){
-        end = stringValue.find(decimal_point, start);
-        token_v.push_back(stringValue.substr(start, end-start));
-        start = stringValue.find_first_not_of(decimal_point, end);
-      }
-
-      if(token_v.size() > 2 || token_v.empty())
-      {
-        throw std::string("Invalid argument");
-      }
-
-      std::size_t pos;
       try
       {
+        std::vector<std::string> token_v;
+        fixed_type result;
+        char decimal_point = std::use_facet< std::numpunct<char> >(std::locale()).decimal_point();
+        size_t start = stringValue.find_first_not_of(decimal_point), end=start;
+
+        while (start != std::string::npos){
+          end = stringValue.find(decimal_point, start);
+          token_v.push_back(stringValue.substr(start, end-start));
+          start = stringValue.find_first_not_of(decimal_point, end);
+        }
+
+        if(token_v.size() > 2 || token_v.empty())
+        {
+          throw 1;
+        }
+
+        std::size_t pos;
+
         int integer = std::stoi(token_v.at(0), &pos);
         if(pos != token_v.at(0).size()) throw 1;
         bool sign = integer&(1<<31);
@@ -166,12 +167,12 @@ private:
           if(pos != token_v.at(1).size()) throw 1;
         }
         result = sign ? -_value : _value;
+        return result;
       }
       catch (...)
       {
         throw std::string("Invalid argument");
       }
-      return result;
     }
     static fixed_type to_fixed(float value)
     {

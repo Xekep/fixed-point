@@ -137,7 +137,7 @@ private:
     {
       std::vector<std::string> token_v;
       fixed_type result;
-      char decimal_point = std::use_facet< std::numpunct<char> >(std::cout.getloc()).decimal_point();
+      char decimal_point = std::use_facet< std::numpunct<char> >(std::locale()).decimal_point();
       size_t start = stringValue.find_first_not_of(decimal_point), end=start;
 
       while (start != std::string::npos){
@@ -274,7 +274,7 @@ public:
       result << integer;
       if(fraction)
       {
-        char decimal_point = std::use_facet< std::numpunct<char> >(std::cout.getloc()).decimal_point();
+        char decimal_point = std::use_facet< std::numpunct<char> >(std::locale()).decimal_point();
         result  << decimal_point << std::setw(precision) << std::setfill('0') << fraction;
       }
       return result.str();

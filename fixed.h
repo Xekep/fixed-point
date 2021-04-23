@@ -272,6 +272,12 @@ public:
         fraction += 10;
       }
       fraction /= 10;
+      while((fraction % 10) == 0)
+      {
+        precision--;
+        fraction /= 10;
+        if(fraction == 0) break;
+      }
       result << integer;
       if(fraction)
       {

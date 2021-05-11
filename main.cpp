@@ -6,8 +6,11 @@
 
 int main()
 { 
-  fixed f1(2);
-  std::cout << f1.toString(7) << std::endl;
+  fixed f1(-1.05);
+  std::cout << fixed(5) + fixed(-1) << std::endl;
+  std::cout << f1.toString(5) << std::endl;
+  std::cout << fixed::fromRaw(0xffffe22b).toString(5) << 
+  std::endl;
   fixed f12 = (1 + f1 * 2);
   f12 = (f12 * -4.1) + "20.5";
   f12++;

@@ -264,7 +264,7 @@ public:
       fixed_type _value = sign ? -value : value;
       if(!(precision &= 7)) precision = 2;
       int16_t integer = _value >> fractional_bits;
-      if(sign) integer = -integer;
+      if(sign) result << "-";
       uint64_t fr_size = _pow(10, precision + 1);
       uint64_t fraction = (((_value & fractional_mask) * fr_size) >> fractional_bits);
       if((fraction % 10) >= 5)

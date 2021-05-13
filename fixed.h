@@ -162,9 +162,17 @@ private:
         fixed_type _value = (integer << fractional_bits);
         if(token_v.size() > 1)
         {
-          uint32_t fr_size = _pow(10, token_v.at(1).size());
-          _value |= ((std::stoi(token_v.at(1), &pos) << fractional_bits) / fr_size);
-          if(pos != token_v.at(1).size()) throw 1;
+          size_t end_pos = std::string::npos;
+          int fr_size = token_v.at(1).size();
+          if(fr_size > 4)
+          {
+            fr_size = 4;
+            end_pos = 4;
+          }
+          int fr_d = _pow(10, fr_size);
+          int fractional = std::stoi(token_v.at(1).substr(0, end_pos), &pos);
+          _value |= ((fractional << fractional_bits) / fr_d);
+          if(pos != fr_size) throw 1;
         }
         result = sign ? -_value : _value;
         return result;

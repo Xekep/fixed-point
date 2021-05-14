@@ -40,57 +40,6 @@ private:
         if(inp_2 == 0) throw std::string("Divide by zero");
         return (fixed_type)(((expand_type)inp_1 * (1 << fractional_bits))/ (expand_type)inp_2);
     }
-
-    static fixed_type fixed_add(fixed_type inp_1, fixed_type inp_2)
-    {
-        bool inp_1_sign = inp_1&(1<<31);
-        bool inp_2_sign = inp_2&(1<<31);
-        fixed_type add = inp_1 + inp_2;
-        bool add_sign = add&(1<<31);
-
-        if (inp_1_sign != inp_2_sign)
-        {
-            return add;
-        }
-        else if (add_sign == inp_1_sign)
-        {
-            return add;
-        }
-        else if (add_sign)
-        {
-            return ((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
-        }
-        else if (!add_sign)
-        {
-            return (1 << (fixed_type_bits - 1));
-        }
-        return inp_2;
-    }
-    static fixed_type fixed_sub(fixed_type inp_1, fixed_type inp_2)
-    {
-        bool inp_1_sign = inp_1&(1<<31);
-        bool inp_2_sign = inp_2&(1<<31);
-        fixed_type sub = inp_1 - inp_2;
-        bool sub_sign = sub&(1<<31);
-
-        if (inp_1_sign == inp_2_sign)
-        {
-            return sub;
-        }
-        if (sub_sign == inp_1_sign)
-        {
-            return sub;
-        }
-        else if (!sub_sign)
-        {
-            return -((1 << (fixed_type_bits - 2)) - 1 + (1 << (fixed_type_bits - 2)));
-        }
-        else if (sub_sign)
-        {
-            return -(1 << (fixed_type_bits - 1));
-        }
-        return -inp_2;
-    }
     static fixed_type fromFloat(float value)
     {
       fixed_type result = *(fixed_type*)&value;
@@ -149,15 +98,17 @@ private:
         }
 
         if(token_v.size() > 2 || token_v.empty())
-        {
           throw 1;
-        }
 
         std::size_t pos;
 
         int integer = std::stoi(token_v.at(0), &pos);
         if(pos != token_v.at(0).size()) throw 1;
         bool sign = integer&(1<<31);
+
+        if((!sign && integer > MaxValue) || (sign && integer < MinValue))
+          throw 1;
+
         if(sign) integer = -integer;
         fixed_type _value = (integer << fractional_bits);
         if(token_v.size() > 1)
@@ -297,50 +248,50 @@ public:
     // унарные префиксные операторы инкремента и декремента
     fixed& operator--()
     {
-      value = fixed_sub(value, one);
+      value = value + one;
       return *this;
     }
     fixed& operator++()
     {
-      value = fixed_add(value, one);
+      value = value + one;
       return *this;
     }
     // унарные постфиксные операторы инкремента и декремента
     fixed operator--(int)
     {
       fixed temp(*this);
-      value = fixed_sub(value, one);
+      value = value - one;
       return temp;
     }
     fixed operator++(int)
     {
       fixed temp(*this);
-      value = fixed_add(value, one);
+      value = value + one;
       return temp;
     }
     // бинарные арифметические операторы сложения
     friend fixed operator+(const fixed&lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_add(lv.value, rv.value));
+      return fixed::fromRaw(lv.value + rv.value);
     }
     template<typename U>
     friend fixed operator+(const fixed& lv, U rv){
-      return fixed::fromRaw(fixed::fixed_add(lv.value, fixed(rv).value));
+      return fixed::fromRaw(lv.value + fixed(rv).value);
     }
     template<typename U>
     friend fixed operator+(U lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_add(to_fixed(lv), rv.value));
+      return fixed::fromRaw(to_fixed(lv) + rv.value);
     }
     // бинарные арифметические операторы вычитания
     friend fixed operator-(const fixed&lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_sub(lv.value, rv.value));
+      return fixed::fromRaw(lv.value - rv.value);
     }
     template<typename U>
     friend fixed operator-(const fixed& lv, U rv){
-      return fixed::fromRaw(fixed::fixed_sub(lv.value, to_fixed(rv)));
+      return fixed::fromRaw(lv.value - to_fixed(rv));
     }
     template<typename U>
     friend fixed operator-(U lv, const fixed& rv){
-      return fixed::fromRaw(fixed::fixed_sub(to_fixed(lv), rv.value));
+      return fixed::fromRaw(to_fixed(lv) - rv.value);
     }
     // бинарные арифметические операторы умножения
     friend fixed operator*(const fixed&lv, const fixed& rv){
@@ -369,12 +320,12 @@ public:
     // бинарные составные операторы присваивания
     friend fixed& operator+=(fixed& lv, const fixed& rv)
     {
-      lv.value = fixed::fixed_add(lv.value, rv.value);
+      lv.value = lv.value + rv.value;
       return lv;
     }
     friend fixed& operator-=(fixed& lv, const fixed& rv)
     {
-      lv.value = fixed::fixed_sub(lv.value, rv.value);
+      lv.value = lv.value - rv.value;
       return lv;
     }
     friend fixed& operator*=(fixed& lv, const fixed& rv)

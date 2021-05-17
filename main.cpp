@@ -6,10 +6,7 @@
 
 int main()
 { 
-  fixed f1(-1.05);
-  std::cout << (fixed("0.46")-fixed("0.22"))/(fixed(1.07)-fixed(0.63)) << std::endl;
-   std::cout << fixed("1.98765").toString(7) << std::endl;
-  /*
+  fixed f1(0.8);
   fixed f12 = (1 + f1 * 2);
   f12 = (f12 * -4.1) + "20.5";
   f12++;
@@ -41,6 +38,5 @@ int main()
   {
     std::cout << ex << std::endl; 
   }
-  */
   return 0;
 }

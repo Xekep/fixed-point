@@ -227,9 +227,8 @@ public:
       uint64_t fr_size = _pow(10, precision + 1);
       uint64_t fraction = (((_value & fractional_mask) * fr_size) >> fractional_bits);
       if((fraction % 10) >= 5)
-      {
-        fraction += 10;
-      }
+        if((fraction % 100) < 90)
+          fraction += 10;
       fraction /= 10;
       while((fraction % 10) == 0)
       {

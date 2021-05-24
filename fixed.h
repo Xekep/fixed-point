@@ -104,7 +104,7 @@ private:
 
         int integer = std::stoi(token_v.at(0), &pos);
         if(pos != token_v.at(0).size()) throw 1;
-        bool sign = integer&(1<<31);
+        bool sign = integer&(1<<31) || token_v.at(0).at(0) == '-';
 
         if((!sign && integer > MaxValue) || (sign && integer < MinValue))
           throw 1;

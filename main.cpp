@@ -7,6 +7,12 @@
 int main()
 { 
   fixed f1(0.8);
+  while(f1 < 1.2)
+  {
+    f1 += 0.001;
+  std::cout << f1.toString(1) << " " << f1.toFloat() << std::endl;
+  }
+  /*
   fixed f12 = (1 + f1 * 2);
   f12 = (f12 * -4.1) + "20.5";
   f12++;
@@ -38,5 +44,6 @@ int main()
   {
     std::cout << ex << std::endl; 
   }
+  */
   return 0;
 }
